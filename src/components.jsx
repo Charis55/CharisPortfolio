@@ -1,4 +1,5 @@
 import React from 'react';
+import { AntigravityCanvas } from './AntigravityCanvas';
 
 export const Navbar = ({ activeSection, onNavigate }) => {
     const handleNavClick = (e, targetId) => {
@@ -37,6 +38,7 @@ export const Navbar = ({ activeSection, onNavigate }) => {
 export const Hero = () => {
     return (
         <section id="hero" className="hero-section">
+            <AntigravityCanvas />
             <div className="hero-content reveal">
                 <h1 className="hero-title">Charis Obunezi.</h1>
                 <p className="hero-subtitle">Software Engineering Student. Full Stack Developer. Problem Solver.</p>
@@ -246,6 +248,7 @@ export const Projects = () => {
                     </a>
                 </div>
             </div>
+            <Footer />
         </section>
     );
 };

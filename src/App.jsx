@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Navbar, Hero, About, Experience, Skills, Education, Projects, Footer } from './components';
+import { Navbar, Hero, About, Experience, Skills, Education, Projects } from './components';
 import { BackgroundGraphics } from './BackgroundGraphics';
 
 const sections = [
@@ -48,10 +48,11 @@ function App() {
       if (isScrolling.current) return;
       
       const activeSectionEl = document.getElementById(sections[activeIndex].id);
+      let isScrollable = false;
       if (activeSectionEl) {
           // Check if section actually needs internal scrolling
           const overflowY = window.getComputedStyle(activeSectionEl).overflowY;
-          const isScrollable = (overflowY === 'auto' || overflowY === 'scroll') && 
+          isScrollable = (overflowY === 'auto' || overflowY === 'scroll') && 
                                activeSectionEl.scrollHeight > activeSectionEl.clientHeight + 5;
           
           if (isScrollable) {
@@ -66,14 +67,16 @@ function App() {
       }
 
       // Wheel threshold to trigger full page morphing slide transition
-      if (e.deltaY > 5) {
+      // Use higher threshold (25) for scrollable sections at boundary limits to prevent premature transitions
+      const threshold = isScrollable ? 25 : 5;
+      if (e.deltaY > threshold) {
         if (activeIndex < sections.length - 1) {
           isScrolling.current = true;
           setDirection(1);
           setActiveIndex(prev => prev + 1);
           setTimeout(() => { isScrolling.current = false }, 1000); 
         }
-      } else if (e.deltaY < -5) {
+      } else if (e.deltaY < -threshold) {
         if (activeIndex > 0) {
           isScrolling.current = true;
           setDirection(-1);
@@ -215,7 +218,6 @@ function App() {
               style={{ position: 'absolute', width: '100%', height: '100%' }}
             >
               <ActiveComponent />
-              {activeIndex === sections.length - 1 && <Footer />}
             </motion.div>
           </AnimatePresence>
       </div>
