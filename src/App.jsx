@@ -1,173 +1,95 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
 import { Navbar, Hero, About, Experience, Skills, Education, Projects, Footer } from './components';
-import { BackgroundGraphics } from './BackgroundGraphics';
-
-const sections = [
-  { id: 'hero', Component: Hero },
-  { id: 'about', Component: About },
-  { id: 'experience', Component: Experience },
-  { id: 'skills', Component: Skills },
-  { id: 'education', Component: Education },
-  { id: 'projects', Component: Projects }
-];
 
 function App() {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [direction, setDirection] = useState(1); // 1 for down, -1 for up
-  const isScrolling = useRef(false);
+  const [activeSection, setActiveSection] = useState('');
 
   useEffect(() => {
-    const handleWheel = (e) => {
-      if (isScrolling.current) return;
-      
-      const activeSectionEl = document.getElementById(sections[activeIndex].id);
-      if (activeSectionEl) {
-          // Check if section actually needs scrolling
-          const isScrollable = activeSectionEl.scrollHeight > activeSectionEl.clientHeight + 5;
-          
-          if (isScrollable) {
-              const isAtTop = activeSectionEl.scrollTop <= 5;
-              const isAtBottom = Math.abs(activeSectionEl.scrollHeight - activeSectionEl.scrollTop - activeSectionEl.clientHeight) <= 5;
-              
-              if (e.deltaY > 0 && !isAtBottom) return; 
-              if (e.deltaY < 0 && !isAtTop) return;
-          }
-      }
+    // Active section observer
+    const sectionElements = document.querySelectorAll('section');
+    const sectionObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                setActiveSection(entry.target.id);
+            }
+        });
+    }, { threshold: 0.3 });
 
-      // Very low threshold to capture all trackpad events
-      if (e.deltaY > 5) {
-        if (activeIndex < sections.length - 1) {
-          isScrolling.current = true;
-          setDirection(1);
-          setActiveIndex(prev => prev + 1);
-          setTimeout(() => { isScrolling.current = false }, 1000); 
-        }
-      } else if (e.deltaY < -5) {
-        if (activeIndex > 0) {
-          isScrolling.current = true;
-          setDirection(-1);
-          setActiveIndex(prev => prev - 1);
-          setTimeout(() => { isScrolling.current = false }, 1000);
-        }
-      }
+    sectionElements.forEach(el => sectionObserver.observe(el));
+    // Reveal animations on scroll
+    const revealElements = document.querySelectorAll('.reveal');
+    const revealOptions = {
+        threshold: 0.15,
+        rootMargin: "0px 0px -50px 0px"
     };
 
-    window.addEventListener('wheel', handleWheel, { passive: false });
-    
-    let touchStartY = 0;
-    const handleTouchStart = (e) => {
-        touchStartY = e.touches[0].clientY;
-    };
-    const handleTouchMove = (e) => {
-        if (isScrolling.current) return;
-        const touchEndY = e.touches[0].clientY;
-        const deltaY = touchStartY - touchEndY;
+    const revealOnScroll = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, revealOptions);
+
+    revealElements.forEach(el => revealOnScroll.observe(el));
+
+    // Parallax effect on hero background glows
+    const handleScroll = () => {
+        const scrolled = window.scrollY;
+        const glows = document.querySelectorAll('.glow');
         
-        const activeSectionEl = document.getElementById(sections[activeIndex].id);
-        if (activeSectionEl) {
-            const isScrollable = activeSectionEl.scrollHeight > activeSectionEl.clientHeight + 5;
-            if (isScrollable) {
-                const isAtTop = activeSectionEl.scrollTop <= 5;
-                const isAtBottom = Math.abs(activeSectionEl.scrollHeight - activeSectionEl.scrollTop - activeSectionEl.clientHeight) <= 5;
-                
-                if (deltaY > 0 && !isAtBottom) return;
-                if (deltaY < 0 && !isAtTop) return;
+        glows.forEach((glow, index) => {
+            const speed = (index + 1) * 0.1;
+            if (index === 2) {
+                glow.style.transform = `translate(-50%, calc(-50% + ${scrolled * speed * 0.5}px))`;
+            } else {
+                glow.style.transform = `translateY(${scrolled * speed}px)`;
             }
-        }
+        });
 
-        if (deltaY > 30) {
-            if (activeIndex < sections.length - 1) {
-              isScrolling.current = true;
-              setDirection(1);
-              setActiveIndex(prev => prev + 1);
-              setTimeout(() => { isScrolling.current = false }, 1000);
-            }
-        } else if (deltaY < -30) {
-            if (activeIndex > 0) {
-              isScrolling.current = true;
-              setDirection(-1);
-              setActiveIndex(prev => prev - 1);
-              setTimeout(() => { isScrolling.current = false }, 1000);
-            }
+        // Rotate timeline wheel and fill track
+        const wheel = document.getElementById('timeline-wheel');
+        const track = document.getElementById('timeline-track');
+        const fill = document.getElementById('timeline-fill');
+        
+        if (wheel && track && fill) {
+            // Rotate wheel
+            wheel.style.transform = `rotate(${scrolled * 0.5}deg)`;
+            
+            // Calculate fill height based on wheel position inside track
+            const trackRect = track.getBoundingClientRect();
+            const wheelRect = wheel.getBoundingClientRect();
+            
+            let fillHeight = wheelRect.top - trackRect.top + (wheelRect.height / 2);
+            
+            if (fillHeight < 0) fillHeight = 0;
+            if (fillHeight > trackRect.height) fillHeight = trackRect.height;
+            
+            fill.style.height = `${fillHeight}px`;
         }
     };
-    window.addEventListener('touchstart', handleTouchStart);
-    window.addEventListener('touchmove', handleTouchMove, { passive: false });
-
+    
+    window.addEventListener('scroll', handleScroll);
+    
     return () => {
-      window.removeEventListener('wheel', handleWheel);
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('scroll', handleScroll);
+      revealElements.forEach(el => revealOnScroll.unobserve(el));
     };
-  }, [activeIndex]);
-
-  const slideVariants = {
-    enter: (direction) => ({
-      y: direction > 0 ? '100vh' : '-100vh',
-      scale: 0.9,
-      opacity: 0,
-      filter: 'blur(10px)'
-    }),
-    center: {
-      zIndex: 1,
-      y: 0,
-      scale: 1,
-      opacity: 1,
-      filter: 'blur(0px)',
-      transition: {
-        y: { type: "spring", stiffness: 300, damping: 30 },
-        opacity: { duration: 0.5 },
-        scale: { duration: 0.6, ease: "easeOut" },
-        filter: { duration: 0.4 }
-      }
-    },
-    exit: (direction) => ({
-      zIndex: 0,
-      y: direction < 0 ? '100vh' : '-100vh',
-      scale: 0.9,
-      opacity: 0,
-      filter: 'blur(10px)',
-      transition: {
-        y: { type: "spring", stiffness: 300, damping: 30 },
-        opacity: { duration: 0.5 },
-        scale: { duration: 0.6, ease: "easeIn" },
-        filter: { duration: 0.4 }
-      }
-    })
-  };
-
-  const ActiveComponent = sections[activeIndex].Component;
+  }, []);
 
   return (
     <>
-      <BackgroundGraphics activeIndex={activeIndex} />
-      <Navbar 
-        activeSection={sections[activeIndex].id} 
-        onNavigate={(id) => {
-          const idx = sections.findIndex(s => s.id === id);
-          if (idx !== -1 && idx !== activeIndex) {
-              setDirection(idx > activeIndex ? 1 : -1);
-              setActiveIndex(idx);
-          }
-        }} 
-      />
-      <div className="slideshow-container">
-          <AnimatePresence initial={false} custom={direction} mode="wait">
-            <motion.div
-              key={activeIndex}
-              custom={direction}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              style={{ position: 'absolute', width: '100%', height: '100%' }}
-            >
-              <ActiveComponent />
-              {activeIndex === sections.length - 1 && <Footer />}
-            </motion.div>
-          </AnimatePresence>
-      </div>
+      <Navbar activeSection={activeSection} />
+      <main>
+        <Hero />
+        <About />
+        <Experience />
+        <Skills />
+        <Education />
+        <Projects />
+      </main>
+      <Footer />
     </>
   );
 }

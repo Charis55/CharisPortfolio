@@ -14,7 +14,9 @@ export const Navbar = ({ activeSection }) => {
     return (
         <nav className="navbar glass">
             <div className="nav-content">
-                <span className="logo">Charis</span>
+                <a href="#hero" className="logo" onClick={(e) => handleNavClick(e, '#hero')}>
+                    <img src="/logo.png" alt="CharisCorp Logo" className="nav-logo" />
+                </a>
                 <ul className="nav-links">
                     <li><a href="#about" className={activeSection === 'about' ? 'active-link' : ''} onClick={(e) => handleNavClick(e, '#about')}>About</a></li>
                     <li><a href="#experience" className={activeSection === 'experience' ? 'active-link' : ''} onClick={(e) => handleNavClick(e, '#experience')}>Experience</a></li>
@@ -29,9 +31,9 @@ export const Navbar = ({ activeSection }) => {
 
 export const Hero = () => {
     return (
-        <section id="hero" className="section hero-section">
+        <section id="hero" className="hero-section">
             <div className="hero-content reveal">
-                <h1 className="hero-title">OBUNEZI CHIDUGAM CHARIS.</h1>
+                <h1 className="hero-title">Charis Obunezi.</h1>
                 <p className="hero-subtitle">Software Engineering Student. Full Stack Developer. Problem Solver.</p>
                 <div className="hero-cta">
                     <a href="#about" className="btn btn-primary">Discover My Work</a>
