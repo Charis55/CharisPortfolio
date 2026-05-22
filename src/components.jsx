@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 export const Navbar = ({ activeSection }) => {
     const handleNavClick = (e, targetId) => {
@@ -29,9 +29,9 @@ export const Navbar = ({ activeSection }) => {
 
 export const Hero = () => {
     return (
-        <section id="hero" className="hero-section">
+        <section id="hero" className="section hero-section">
             <div className="hero-content reveal">
-                <h1 className="hero-title">Charis Obunezi.</h1>
+                <h1 className="hero-title">OBUNEZI CHIDUGAM CHARIS.</h1>
                 <p className="hero-subtitle">Software Engineering Student. Full Stack Developer. Problem Solver.</p>
                 <div className="hero-cta">
                     <a href="#about" className="btn btn-primary">Discover My Work</a>
@@ -76,36 +76,6 @@ export const About = () => {
 };
 
 export const Experience = () => {
-    useEffect(() => {
-        const handleInternalScroll = () => {
-            const wheel = document.getElementById('timeline-wheel');
-            const track = document.getElementById('timeline-track');
-            const fill = document.getElementById('timeline-fill');
-            const expSection = document.getElementById('experience');
-            
-            if (wheel && track && fill && expSection) {
-                const scrolled = expSection.scrollTop;
-                wheel.style.transform = `rotate(${scrolled * 0.5}deg)`;
-                
-                const trackRect = track.getBoundingClientRect();
-                const wheelRect = wheel.getBoundingClientRect();
-                
-                let fillHeight = wheelRect.top - trackRect.top + (wheelRect.height / 2);
-                if (fillHeight < 0) fillHeight = 0;
-                if (fillHeight > trackRect.height) fillHeight = trackRect.height;
-                fill.style.height = `${fillHeight}px`;
-            }
-        };
-
-        const expSection = document.getElementById('experience');
-        if (expSection) {
-            expSection.addEventListener('scroll', handleInternalScroll);
-            // trigger once on mount
-            handleInternalScroll();
-            return () => expSection.removeEventListener('scroll', handleInternalScroll);
-        }
-    }, []);
-
     return (
         <section id="experience" className="section">
             <div className="container">

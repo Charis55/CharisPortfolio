@@ -24,20 +24,20 @@ function App() {
       const activeSectionEl = document.getElementById(sections[activeIndex].id);
       if (activeSectionEl) {
           const isAtTop = activeSectionEl.scrollTop === 0;
-          const isAtBottom = activeSectionEl.scrollHeight - activeSectionEl.scrollTop <= activeSectionEl.clientHeight + 1;
+          const isAtBottom = activeSectionEl.scrollHeight - activeSectionEl.scrollTop <= activeSectionEl.clientHeight + 2;
           
           if (e.deltaY > 0 && !isAtBottom) return; 
           if (e.deltaY < 0 && !isAtTop) return;    
       }
 
-      if (e.deltaY > 30) {
+      if (e.deltaY > 15) {
         if (activeIndex < sections.length - 1) {
           isScrolling.current = true;
           setDirection(1);
           setActiveIndex(prev => prev + 1);
           setTimeout(() => { isScrolling.current = false }, 1200); 
         }
-      } else if (e.deltaY < -30) {
+      } else if (e.deltaY < -15) {
         if (activeIndex > 0) {
           isScrolling.current = true;
           setDirection(-1);
@@ -61,20 +61,20 @@ function App() {
         const activeSectionEl = document.getElementById(sections[activeIndex].id);
         if (activeSectionEl) {
             const isAtTop = activeSectionEl.scrollTop === 0;
-            const isAtBottom = activeSectionEl.scrollHeight - activeSectionEl.scrollTop <= activeSectionEl.clientHeight + 1;
+            const isAtBottom = activeSectionEl.scrollHeight - activeSectionEl.scrollTop <= activeSectionEl.clientHeight + 2;
             
             if (deltaY > 0 && !isAtBottom) return;
             if (deltaY < 0 && !isAtTop) return;
         }
 
-        if (deltaY > 50) {
+        if (deltaY > 30) {
             if (activeIndex < sections.length - 1) {
               isScrolling.current = true;
               setDirection(1);
               setActiveIndex(prev => prev + 1);
               setTimeout(() => { isScrolling.current = false }, 1200);
             }
-        } else if (deltaY < -50) {
+        } else if (deltaY < -30) {
             if (activeIndex > 0) {
               isScrolling.current = true;
               setDirection(-1);
