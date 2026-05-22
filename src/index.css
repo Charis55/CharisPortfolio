@@ -93,6 +93,13 @@ body {
     opacity: 1;
 }
 
+.nav-links a.active-link {
+    color: var(--accent-color);
+    text-shadow: 0 0 10px rgba(41, 151, 255, 0.8), 0 0 20px rgba(41, 151, 255, 0.5);
+    opacity: 1;
+    transition: all 0.3s ease;
+}
+
 /* Sections */
 .section {
     padding: 8rem 2rem;

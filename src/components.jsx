@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const Navbar = () => {
+export const Navbar = ({ activeSection }) => {
     const handleNavClick = (e, targetId) => {
         e.preventDefault();
         const targetElement = document.querySelector(targetId);
@@ -16,11 +16,11 @@ export const Navbar = () => {
             <div className="nav-content">
                 <span className="logo">Charis</span>
                 <ul className="nav-links">
-                    <li><a href="#about" onClick={(e) => handleNavClick(e, '#about')}>About</a></li>
-                    <li><a href="#experience" onClick={(e) => handleNavClick(e, '#experience')}>Experience</a></li>
-                    <li><a href="#skills" onClick={(e) => handleNavClick(e, '#skills')}>Skills</a></li>
-                    <li><a href="#education" onClick={(e) => handleNavClick(e, '#education')}>Education</a></li>
-                    <li><a href="#projects" onClick={(e) => handleNavClick(e, '#projects')}>Projects</a></li>
+                    <li><a href="#about" className={activeSection === 'about' ? 'active-link' : ''} onClick={(e) => handleNavClick(e, '#about')}>About</a></li>
+                    <li><a href="#experience" className={activeSection === 'experience' ? 'active-link' : ''} onClick={(e) => handleNavClick(e, '#experience')}>Experience</a></li>
+                    <li><a href="#skills" className={activeSection === 'skills' ? 'active-link' : ''} onClick={(e) => handleNavClick(e, '#skills')}>Skills</a></li>
+                    <li><a href="#education" className={activeSection === 'education' ? 'active-link' : ''} onClick={(e) => handleNavClick(e, '#education')}>Education</a></li>
+                    <li><a href="#projects" className={activeSection === 'projects' ? 'active-link' : ''} onClick={(e) => handleNavClick(e, '#projects')}>Projects</a></li>
                 </ul>
             </div>
         </nav>

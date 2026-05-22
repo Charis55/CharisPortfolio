@@ -1,8 +1,21 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navbar, Hero, About, Experience, Skills, Education, Projects, Footer } from './components';
 
 function App() {
+  const [activeSection, setActiveSection] = useState('');
+
   useEffect(() => {
+    // Active section observer
+    const sectionElements = document.querySelectorAll('section');
+    const sectionObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                setActiveSection(entry.target.id);
+            }
+        });
+    }, { threshold: 0.3 });
+
+    sectionElements.forEach(el => sectionObserver.observe(el));
     // Reveal animations on scroll
     const revealElements = document.querySelectorAll('.reveal');
     const revealOptions = {
@@ -67,7 +80,7 @@ function App() {
 
   return (
     <>
-      <Navbar />
+      <Navbar activeSection={activeSection} />
       <main>
         <Hero />
         <About />
