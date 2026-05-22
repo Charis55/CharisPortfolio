@@ -50,7 +50,7 @@ export const About = () => {
             <div className="container reveal">
                 <h2 className="section-title">Professional Summary</h2>
                 <p className="summary-text">
-                    A dedicated student with some experience in HTML development and management, database management with SQL, and MySQL administration and maintenance. Proficient in using Visual Studio Code for efficient coding practices. Demonstrates strong critical thinking and problem analysis skills, coupled with the ability to collaborate effectively within groups. Adaptable and committed to student engagement, aiming to leverage technical skills in a dynamic work environment.
+                    A dedicated student with some experience in HTML development and management, database management with SQL, and MySQL administration and maintenance. Proficient in using Software Development IDEs for efficient coding practices. Demonstrates strong critical thinking and problem analysis skills, coupled with the ability to collaborate effectively within groups. Adaptable and committed to student engagement, aiming to leverage technical skills in a dynamic work environment.
                 </p>
                 <div className="contact-grid">
                     <a href="mailto:obunezicharis@gmail.com" className="contact-card">
@@ -115,7 +115,7 @@ export const Skills = () => {
                     </div>
                     <div className="skill-card glass-card reveal fade-delay-2">
                         <h4>Tools</h4>
-                        <p>Visual Studio Code, Database Management</p>
+                        <p>Software Development IDEs, Firebase Console, Database Management</p>
                     </div>
                     <div className="skill-card glass-card reveal fade-delay-3">
                         <h4>Core Competencies</h4>
@@ -136,7 +136,7 @@ export const Education = () => {
         <section id="education" className="section">
             <div className="container reveal">
                 <h2 className="section-title">Education & Profile</h2>
-                
+
                 <div className="edu-grid">
                     <div className="edu-history" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                         <div className="edu-card glass-card reveal fade-delay-1">
@@ -151,7 +151,7 @@ export const Education = () => {
 
                         <div className="edu-card glass-card reveal fade-delay-2">
                             <h3>West African Senior School Certificate (WASSCE)</h3>
-                            <p className="edu-meta">Capital Schools - Abuja, Nigeria | 2017 - 2022</p>
+                            <p className="edu-meta">Capville Schools - Abuja, Nigeria | 2017 - 2022</p>
                             <div className="course-list">
                                 <p>Completed Senior Secondary education and obtained the WAEC certificate. Developed a strong academic foundation across core science and general subjects.</p>
                             </div>
