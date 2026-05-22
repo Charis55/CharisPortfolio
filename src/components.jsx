@@ -1,5 +1,4 @@
 import React from 'react';
-import { AntigravityCanvas } from './AntigravityCanvas';
 
 export const Navbar = ({ activeSection, onNavigate }) => {
     const handleNavClick = (e, targetId) => {
@@ -35,15 +34,21 @@ export const Navbar = ({ activeSection, onNavigate }) => {
     );
 };
 
-export const Hero = () => {
+export const Hero = ({ onNavigate }) => {
+    const handleCtaClick = (e) => {
+        e.preventDefault();
+        if (onNavigate) {
+            onNavigate('about');
+        }
+    };
+
     return (
         <section id="hero" className="hero-section">
-            <AntigravityCanvas />
             <div className="hero-content reveal">
                 <h1 className="hero-title">Charis Obunezi.</h1>
                 <p className="hero-subtitle">Software Engineering Student. Full Stack Developer. Problem Solver.</p>
                 <div className="hero-cta">
-                    <a href="#about" className="btn btn-primary">Discover My Work</a>
+                    <a href="#about" className="btn btn-primary" onClick={handleCtaClick}>Discover My Work</a>
                 </div>
             </div>
             <div className="glow glow-1"></div>

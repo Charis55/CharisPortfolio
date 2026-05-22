@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Navbar, Hero, About, Experience, Skills, Education, Projects } from './components';
 import { BackgroundGraphics } from './BackgroundGraphics';
+import { AntigravityCanvas } from './AntigravityCanvas';
 
 const sections = [
   { id: 'hero', Component: Hero },
@@ -26,7 +27,7 @@ function App() {
           isScrolling.current = true;
           setDirection(1);
           setActiveIndex(prev => prev + 1);
-          setTimeout(() => { isScrolling.current = false }, 1000);
+          setTimeout(() => { isScrolling.current = false }, 600);
         }
       } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
         if (activeIndex > 0) {
@@ -67,21 +68,21 @@ function App() {
       }
 
       // Wheel threshold to trigger full page morphing slide transition
-      // Use higher threshold (25) for scrollable sections at boundary limits to prevent premature transitions
-      const threshold = isScrollable ? 25 : 5;
+      // Use moderate threshold (12) for scrollable sections at boundary limits to prevent premature transitions
+      const threshold = isScrollable ? 12 : 3;
       if (e.deltaY > threshold) {
         if (activeIndex < sections.length - 1) {
           isScrolling.current = true;
           setDirection(1);
           setActiveIndex(prev => prev + 1);
-          setTimeout(() => { isScrolling.current = false }, 1000); 
+          setTimeout(() => { isScrolling.current = false }, 600); 
         }
       } else if (e.deltaY < -threshold) {
         if (activeIndex > 0) {
           isScrolling.current = true;
           setDirection(-1);
           setActiveIndex(prev => prev - 1);
-          setTimeout(() => { isScrolling.current = false }, 1000);
+          setTimeout(() => { isScrolling.current = false }, 600);
         }
       }
     };
@@ -112,19 +113,19 @@ function App() {
         }
 
         // Swiping gesture threshold
-        if (deltaY > 50) {
+        if (deltaY > 40) {
             if (activeIndex < sections.length - 1) {
               isScrolling.current = true;
               setDirection(1);
               setActiveIndex(prev => prev + 1);
-              setTimeout(() => { isScrolling.current = false }, 1000);
+              setTimeout(() => { isScrolling.current = false }, 600);
             }
-        } else if (deltaY < -50) {
+        } else if (deltaY < -40) {
             if (activeIndex > 0) {
               isScrolling.current = true;
               setDirection(-1);
               setActiveIndex(prev => prev - 1);
-              setTimeout(() => { isScrolling.current = false }, 1000);
+              setTimeout(() => { isScrolling.current = false }, 600);
             }
         }
     };
@@ -193,18 +194,21 @@ function App() {
 
   const ActiveComponent = sections[activeIndex].Component;
 
+  const handleNavigate = useCallback((id) => {
+    const idx = sections.findIndex(s => s.id === id);
+    if (idx !== -1 && idx !== activeIndex) {
+        setDirection(idx > activeIndex ? 1 : -1);
+        setActiveIndex(idx);
+    }
+  }, [activeIndex]);
+
   return (
     <>
       <BackgroundGraphics activeIndex={activeIndex} />
+      <AntigravityCanvas />
       <Navbar 
         activeSection={sections[activeIndex].id} 
-        onNavigate={(id) => {
-          const idx = sections.findIndex(s => s.id === id);
-          if (idx !== -1 && idx !== activeIndex) {
-              setDirection(idx > activeIndex ? 1 : -1);
-              setActiveIndex(idx);
-          }
-        }} 
+        onNavigate={handleNavigate} 
       />
       <div className="slideshow-container">
           <AnimatePresence initial={false} custom={direction} mode="popLayout">
@@ -217,7 +221,7 @@ function App() {
               exit="exit"
               style={{ position: 'absolute', width: '100%', height: '100%' }}
             >
-              <ActiveComponent />
+              <ActiveComponent onNavigate={handleNavigate} />
             </motion.div>
           </AnimatePresence>
       </div>
