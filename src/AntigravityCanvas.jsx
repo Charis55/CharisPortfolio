@@ -12,7 +12,7 @@ export const AntigravityCanvas = () => {
 
         let animationFrameId;
         let dashes = [];
-        const spacing = 38; // Spacing between dashes in pixels (optimized grid)
+        const spacing = 35; // Dense grid spacing for high-density reactive field
         const dashLength = 14;
         const dashWidth = 3;
 
@@ -25,10 +25,10 @@ export const AntigravityCanvas = () => {
         };
 
         const colors = [
-            'rgba(41, 151, 255, 0.7)',  // Neon Blue
-            'rgba(164, 41, 255, 0.7)',  // Soft Purple
-            'rgba(255, 41, 92, 0.7)',   // Hot Pink
-            'rgba(41, 255, 151, 0.6)'    // Vibrant Teal/Green
+            'rgba(41, 151, 255, 0.8)',  // Neon Blue
+            'rgba(164, 41, 255, 0.8)',  // Soft Purple
+            'rgba(255, 41, 92, 0.8)',   // Hot Pink
+            'rgba(41, 255, 151, 0.7)'    // Vibrant Teal/Green
         ];
 
         const initDashes = () => {
@@ -40,21 +40,25 @@ export const AntigravityCanvas = () => {
             for (let r = 0; r < rows; r++) {
                 for (let c = 0; c < cols; c++) {
                     // Organic offset similar to Google Antigravity vector field
-                    const offsetX = (Math.random() - 0.5) * 10;
-                    const offsetY = (Math.random() - 0.5) * 10;
+                    const offsetX = (Math.random() - 0.5) * 8;
+                    const offsetY = (Math.random() - 0.5) * 8;
                     
                     const baseX = c * spacing + offsetX;
                     const baseY = r * spacing + offsetY;
+                    // Stationary base angle (horizontal with slight organic variation)
+                    const baseAngle = (Math.random() - 0.5) * 0.15;
 
                     dashes.push({
                         x: baseX,
                         y: baseY,
                         currentX: baseX,
                         currentY: baseY,
-                        angle: Math.random() * Math.PI * 2,
+                        baseAngle: baseAngle,
+                        angle: baseAngle,
                         color: colors[Math.floor(Math.random() * colors.length)],
-                        phase: Math.random() * Math.PI * 2, // Subtle idle breathing
-                        speed: 0.015 + Math.random() * 0.02
+                        phase: Math.random() * Math.PI * 2, // Pulse phase offset
+                        pulseSpeed: 0.05 + Math.random() * 0.05,
+                        currentOpacity: 0 // Invisible by default until cursor approaches
                     });
                 }
             }
@@ -90,22 +94,18 @@ export const AntigravityCanvas = () => {
             const mouse = mouseRef.current;
 
             dashes.forEach((dash) => {
-                let targetAngle = dash.angle;
+                let targetAngle = dash.baseAngle;
                 let targetX = dash.x;
                 let targetY = dash.y;
-
-                // Subtle idle float animation when mouse is far or inactive
-                dash.phase += dash.speed;
-                const idleOffset = Math.sin(dash.phase) * 1.5;
-                targetY += idleOffset;
+                let targetOpacity = 0; // Complete silence/invisibility when cursor is far
 
                 if (mouse.active) {
                     const dx = mouse.x - dash.x;
                     const dy = mouse.y - dash.y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
 
-                    // Magnetic / Gravitational field radius of 280px
-                    const influenceRadius = 280;
+                    // Magnetic / Gravitational field radius of 260px
+                    const influenceRadius = 260;
                     if (dist < influenceRadius) {
                         // Point towards mouse!
                         targetAngle = Math.atan2(dy, dx);
@@ -113,52 +113,73 @@ export const AntigravityCanvas = () => {
                         // Calculate linear factor based on distance (stronger closer to mouse)
                         const factor = (influenceRadius - dist) / influenceRadius;
                         
-                        // Slightly displace the dash away from mouse (anti-gravity push)
-                        const pushStrength = 14 * factor;
+                        // Fade in proportionally
+                        targetOpacity = factor;
+
+                        // Slide towards mouse/away from mouse (dynamic anti-gravity fluid bubble)
+                        const pushStrength = 15 * factor;
                         targetX = dash.x - (dx / dist) * pushStrength;
-                        targetY = dash.y - (dy / dist) * pushStrength + idleOffset;
-                    } else {
-                        // Slowly align back to dynamic horizontal wave
-                        targetAngle = Math.sin(dash.phase * 0.15) * 0.15;
+                        targetY = dash.y - (dy / dist) * pushStrength;
+                        
+                        // Run pulsing animation phase when active
+                        dash.phase += dash.pulseSpeed;
                     }
-                } else {
-                    // Slowly align back to dynamic horizontal wave
-                    targetAngle = Math.sin(dash.phase * 0.15) * 0.15;
                 }
 
-                // Smoothly interpolate angle with shortest arc rotation
-                let diff = targetAngle - dash.angle;
-                while (diff < -Math.PI) diff += Math.PI * 2;
-                while (diff > Math.PI) diff -= Math.PI * 2;
-                dash.angle += diff * 0.1; // Smooth ease-out rotation
+                // Easing current opacity towards target
+                dash.currentOpacity += (targetOpacity - dash.currentOpacity) * 0.12;
 
-                // Smoothly interpolate position (fluid spring ease)
-                dash.currentX += (targetX - dash.currentX) * 0.08;
-                dash.currentY += (targetY - dash.currentY) * 0.08;
+                // Only perform drawing & math calculation if the dash is visible to conserve CPU/GPU
+                if (dash.currentOpacity > 0.005) {
+                    // Easing target angle
+                    let diff = targetAngle - dash.angle;
+                    while (diff < -Math.PI) diff += Math.PI * 2;
+                    while (diff > Math.PI) diff -= Math.PI * 2;
+                    dash.angle += diff * 0.12; // Easing rotation
 
-                // Draw dash
-                ctx.save();
-                ctx.translate(dash.currentX, dash.currentY);
-                ctx.rotate(dash.angle);
+                    // Easing positions
+                    dash.currentX += (targetX - dash.currentX) * 0.1;
+                    dash.currentY += (targetY - dash.currentY) * 0.1;
 
-                // Draw capsule/dash
-                ctx.beginPath();
-                ctx.fillStyle = dash.color;
-                
-                // Draw rounded rectangle/capsule
-                const x = -dashLength / 2;
-                const y = -dashWidth / 2;
-                const r = dashWidth / 2;
-                
-                ctx.arc(x + r, y + r, r, Math.PI / 2, (Math.PI * 3) / 2);
-                ctx.lineTo(x + dashLength - r, y);
-                ctx.arc(x + dashLength - r, y + r, r, (Math.PI * 3) / 2, Math.PI / 2);
-                ctx.lineTo(x + dashLength - r, y + dashWidth);
-                ctx.lineTo(x + r, y + dashWidth);
-                ctx.closePath();
-                ctx.fill();
+                    // Calculate pulse amplitude (pulsing opacity + size)
+                    const pulse = 0.65 + 0.35 * Math.sin(dash.phase);
+                    const scalePulse = 0.85 + 0.15 * Math.sin(dash.phase);
 
-                ctx.restore();
+                    // Draw dash
+                    ctx.save();
+                    ctx.translate(dash.currentX, dash.currentY);
+                    ctx.rotate(dash.angle);
+
+                    // Apply transparency and pulsing factor
+                    ctx.globalAlpha = dash.currentOpacity * pulse;
+
+                    // Draw capsule/dash
+                    ctx.beginPath();
+                    ctx.fillStyle = dash.color;
+                    
+                    // Draw rounded rectangle/capsule with dynamic scale pulsing
+                    const activeLength = dashLength * scalePulse;
+                    const activeWidth = dashWidth * scalePulse;
+
+                    const x = -activeLength / 2;
+                    const y = -activeWidth / 2;
+                    const r = activeWidth / 2;
+                    
+                    ctx.arc(x + r, y + r, r, Math.PI / 2, (Math.PI * 3) / 2);
+                    ctx.lineTo(x + activeLength - r, y);
+                    ctx.arc(x + activeLength - r, y + r, r, (Math.PI * 3) / 2, Math.PI / 2);
+                    ctx.lineTo(x + activeLength - r, y + activeWidth);
+                    ctx.lineTo(x + r, y + activeWidth);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    ctx.restore();
+                } else {
+                    // Reset positions & angles when invisible to prevent drifting
+                    dash.currentX = dash.x;
+                    dash.currentY = dash.y;
+                    dash.angle = dash.baseAngle;
+                }
             });
 
             animationFrameId = requestAnimationFrame(render);
@@ -187,7 +208,7 @@ export const AntigravityCanvas = () => {
                 height: '100%',
                 zIndex: 1,
                 pointerEvents: 'none',
-                opacity: 0.65
+                opacity: 0.95
             }}
         />
     );
