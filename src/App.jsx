@@ -23,26 +23,32 @@ function App() {
       
       const activeSectionEl = document.getElementById(sections[activeIndex].id);
       if (activeSectionEl) {
-          const isAtTop = activeSectionEl.scrollTop === 0;
-          const isAtBottom = activeSectionEl.scrollHeight - activeSectionEl.scrollTop <= activeSectionEl.clientHeight + 2;
+          // Check if section actually needs scrolling
+          const isScrollable = activeSectionEl.scrollHeight > activeSectionEl.clientHeight + 5;
           
-          if (e.deltaY > 0 && !isAtBottom) return; 
-          if (e.deltaY < 0 && !isAtTop) return;    
+          if (isScrollable) {
+              const isAtTop = activeSectionEl.scrollTop <= 5;
+              const isAtBottom = Math.abs(activeSectionEl.scrollHeight - activeSectionEl.scrollTop - activeSectionEl.clientHeight) <= 5;
+              
+              if (e.deltaY > 0 && !isAtBottom) return; 
+              if (e.deltaY < 0 && !isAtTop) return;
+          }
       }
 
-      if (e.deltaY > 15) {
+      // Very low threshold to capture all trackpad events
+      if (e.deltaY > 5) {
         if (activeIndex < sections.length - 1) {
           isScrolling.current = true;
           setDirection(1);
           setActiveIndex(prev => prev + 1);
-          setTimeout(() => { isScrolling.current = false }, 1200); 
+          setTimeout(() => { isScrolling.current = false }, 1000); 
         }
-      } else if (e.deltaY < -15) {
+      } else if (e.deltaY < -5) {
         if (activeIndex > 0) {
           isScrolling.current = true;
           setDirection(-1);
           setActiveIndex(prev => prev - 1);
-          setTimeout(() => { isScrolling.current = false }, 1200);
+          setTimeout(() => { isScrolling.current = false }, 1000);
         }
       }
     };
@@ -60,11 +66,14 @@ function App() {
         
         const activeSectionEl = document.getElementById(sections[activeIndex].id);
         if (activeSectionEl) {
-            const isAtTop = activeSectionEl.scrollTop === 0;
-            const isAtBottom = activeSectionEl.scrollHeight - activeSectionEl.scrollTop <= activeSectionEl.clientHeight + 2;
-            
-            if (deltaY > 0 && !isAtBottom) return;
-            if (deltaY < 0 && !isAtTop) return;
+            const isScrollable = activeSectionEl.scrollHeight > activeSectionEl.clientHeight + 5;
+            if (isScrollable) {
+                const isAtTop = activeSectionEl.scrollTop <= 5;
+                const isAtBottom = Math.abs(activeSectionEl.scrollHeight - activeSectionEl.scrollTop - activeSectionEl.clientHeight) <= 5;
+                
+                if (deltaY > 0 && !isAtBottom) return;
+                if (deltaY < 0 && !isAtTop) return;
+            }
         }
 
         if (deltaY > 30) {
@@ -72,14 +81,14 @@ function App() {
               isScrolling.current = true;
               setDirection(1);
               setActiveIndex(prev => prev + 1);
-              setTimeout(() => { isScrolling.current = false }, 1200);
+              setTimeout(() => { isScrolling.current = false }, 1000);
             }
         } else if (deltaY < -30) {
             if (activeIndex > 0) {
               isScrolling.current = true;
               setDirection(-1);
               setActiveIndex(prev => prev - 1);
-              setTimeout(() => { isScrolling.current = false }, 1200);
+              setTimeout(() => { isScrolling.current = false }, 1000);
             }
         }
     };
