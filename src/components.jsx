@@ -138,13 +138,31 @@ export const Education = () => {
                 <h2 className="section-title">Education & Profile</h2>
                 
                 <div className="edu-grid">
-                    <div className="edu-card glass-card reveal fade-delay-1">
-                        <h3>Bachelor of Science: Software Engineering</h3>
-                        <p className="edu-meta">Babcock University - Nigeria | 10/2022 - Current</p>
-                        <p className="edu-grad">Expected Graduation: 2026</p>
-                        <div className="course-list">
-                            <strong>Key Courses:</strong>
-                            <p>Database Management Systems, Web Development, Algorithms and Data Structures, Software Engineering Principles, Software Architecture and Design, Database System Design, Model-Based Software Engineering, Embedded Systems.</p>
+                    <div className="edu-history" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                        <div className="edu-card glass-card reveal fade-delay-1">
+                            <h3>Bachelor of Science: Software Engineering</h3>
+                            <p className="edu-meta">Babcock University - Nigeria | 10/2022 - Current</p>
+                            <p className="edu-grad">Expected Graduation: 2026</p>
+                            <div className="course-list">
+                                <strong>Key Courses:</strong>
+                                <p>Database Management Systems, Web Development, Algorithms and Data Structures, Software Engineering Principles, Software Architecture and Design, Database System Design, Model-Based Software Engineering, Embedded Systems.</p>
+                            </div>
+                        </div>
+
+                        <div className="edu-card glass-card reveal fade-delay-2">
+                            <h3>West African Senior School Certificate (WASSCE)</h3>
+                            <p className="edu-meta">Capital Schools - Abuja, Nigeria | 2017 - 2022</p>
+                            <div className="course-list">
+                                <p>Completed Senior Secondary education and obtained the WAEC certificate. Developed a strong academic foundation across core science and general subjects.</p>
+                            </div>
+                        </div>
+
+                        <div className="edu-card glass-card reveal fade-delay-3">
+                            <h3>Junior Secondary Education</h3>
+                            <p className="edu-meta">Grace Garden International College - Abuja, Nigeria | 2016</p>
+                            <div className="course-list">
+                                <p>Completed foundational junior secondary coursework (JSS 1).</p>
+                            </div>
                         </div>
                     </div>
 
