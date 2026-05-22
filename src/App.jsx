@@ -50,7 +50,9 @@ function App() {
       const activeSectionEl = document.getElementById(sections[activeIndex].id);
       if (activeSectionEl) {
           // Check if section actually needs internal scrolling
-          const isScrollable = activeSectionEl.scrollHeight > activeSectionEl.clientHeight + 5;
+          const overflowY = window.getComputedStyle(activeSectionEl).overflowY;
+          const isScrollable = (overflowY === 'auto' || overflowY === 'scroll') && 
+                               activeSectionEl.scrollHeight > activeSectionEl.clientHeight + 5;
           
           if (isScrollable) {
               const isAtTop = activeSectionEl.scrollTop <= 5;
@@ -64,14 +66,14 @@ function App() {
       }
 
       // Wheel threshold to trigger full page morphing slide transition
-      if (e.deltaY > 15) {
+      if (e.deltaY > 5) {
         if (activeIndex < sections.length - 1) {
           isScrolling.current = true;
           setDirection(1);
           setActiveIndex(prev => prev + 1);
           setTimeout(() => { isScrolling.current = false }, 1000); 
         }
-      } else if (e.deltaY < -15) {
+      } else if (e.deltaY < -5) {
         if (activeIndex > 0) {
           isScrolling.current = true;
           setDirection(-1);
@@ -94,7 +96,9 @@ function App() {
         
         const activeSectionEl = document.getElementById(sections[activeIndex].id);
         if (activeSectionEl) {
-            const isScrollable = activeSectionEl.scrollHeight > activeSectionEl.clientHeight + 5;
+            const overflowY = window.getComputedStyle(activeSectionEl).overflowY;
+            const isScrollable = (overflowY === 'auto' || overflowY === 'scroll') && 
+                                 activeSectionEl.scrollHeight > activeSectionEl.clientHeight + 5;
             if (isScrollable) {
                 const isAtTop = activeSectionEl.scrollTop <= 5;
                 const isAtBottom = Math.abs(activeSectionEl.scrollHeight - activeSectionEl.scrollTop - activeSectionEl.clientHeight) <= 5;
