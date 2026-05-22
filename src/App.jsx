@@ -1,95 +1,220 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Navbar, Hero, About, Experience, Skills, Education, Projects, Footer } from './components';
+import { BackgroundGraphics } from './BackgroundGraphics';
+
+const sections = [
+  { id: 'hero', Component: Hero },
+  { id: 'about', Component: About },
+  { id: 'experience', Component: Experience },
+  { id: 'skills', Component: Skills },
+  { id: 'education', Component: Education },
+  { id: 'projects', Component: Projects }
+];
 
 function App() {
-  const [activeSection, setActiveSection] = useState('');
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [direction, setDirection] = useState(1); // 1 for down, -1 for up
+  const isScrolling = useRef(false);
+
+  // Keyboard navigation support
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (isScrolling.current) return;
+      if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+        if (activeIndex < sections.length - 1) {
+          isScrolling.current = true;
+          setDirection(1);
+          setActiveIndex(prev => prev + 1);
+          setTimeout(() => { isScrolling.current = false }, 1000);
+        }
+      } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+        if (activeIndex > 0) {
+          isScrolling.current = true;
+          setDirection(-1);
+          setActiveIndex(prev => prev - 1);
+          setTimeout(() => { isScrolling.current = false }, 1000);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeIndex]);
 
   useEffect(() => {
-    // Active section observer
-    const sectionElements = document.querySelectorAll('section');
-    const sectionObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                setActiveSection(entry.target.id);
-            }
-        });
-    }, { threshold: 0.3 });
+    const handleWheel = (e) => {
+      // Don't intercept scroll if scrolling quickly or inside transitions
+      if (isScrolling.current) return;
+      
+      const activeSectionEl = document.getElementById(sections[activeIndex].id);
+      if (activeSectionEl) {
+          // Check if section actually needs internal scrolling
+          const isScrollable = activeSectionEl.scrollHeight > activeSectionEl.clientHeight + 5;
+          
+          if (isScrollable) {
+              const isAtTop = activeSectionEl.scrollTop <= 5;
+              const isAtBottom = Math.abs(activeSectionEl.scrollHeight - activeSectionEl.scrollTop - activeSectionEl.clientHeight) <= 5;
+              
+              // If user is trying to scroll down but has not reached the bottom yet, let native scroll work
+              if (e.deltaY > 0 && !isAtBottom) return; 
+              // If user is trying to scroll up but has not reached the top yet, let native scroll work
+              if (e.deltaY < 0 && !isAtTop) return;
+          }
+      }
 
-    sectionElements.forEach(el => sectionObserver.observe(el));
-    // Reveal animations on scroll
-    const revealElements = document.querySelectorAll('.reveal');
-    const revealOptions = {
-        threshold: 0.15,
-        rootMargin: "0px 0px -50px 0px"
+      // Wheel threshold to trigger full page morphing slide transition
+      if (e.deltaY > 15) {
+        if (activeIndex < sections.length - 1) {
+          isScrolling.current = true;
+          setDirection(1);
+          setActiveIndex(prev => prev + 1);
+          setTimeout(() => { isScrolling.current = false }, 1000); 
+        }
+      } else if (e.deltaY < -15) {
+        if (activeIndex > 0) {
+          isScrolling.current = true;
+          setDirection(-1);
+          setActiveIndex(prev => prev - 1);
+          setTimeout(() => { isScrolling.current = false }, 1000);
+        }
+      }
     };
 
-    const revealOnScroll = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('active');
-                observer.unobserve(entry.target);
-            }
-        });
-    }, revealOptions);
-
-    revealElements.forEach(el => revealOnScroll.observe(el));
-
-    // Parallax effect on hero background glows
-    const handleScroll = () => {
-        const scrolled = window.scrollY;
-        const glows = document.querySelectorAll('.glow');
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    
+    let touchStartY = 0;
+    const handleTouchStart = (e) => {
+        touchStartY = e.touches[0].clientY;
+    };
+    const handleTouchMove = (e) => {
+        if (isScrolling.current) return;
+        const touchEndY = e.touches[0].clientY;
+        const deltaY = touchStartY - touchEndY;
         
-        glows.forEach((glow, index) => {
-            const speed = (index + 1) * 0.1;
-            if (index === 2) {
-                glow.style.transform = `translate(-50%, calc(-50% + ${scrolled * speed * 0.5}px))`;
-            } else {
-                glow.style.transform = `translateY(${scrolled * speed}px)`;
+        const activeSectionEl = document.getElementById(sections[activeIndex].id);
+        if (activeSectionEl) {
+            const isScrollable = activeSectionEl.scrollHeight > activeSectionEl.clientHeight + 5;
+            if (isScrollable) {
+                const isAtTop = activeSectionEl.scrollTop <= 5;
+                const isAtBottom = Math.abs(activeSectionEl.scrollHeight - activeSectionEl.scrollTop - activeSectionEl.clientHeight) <= 5;
+                
+                if (deltaY > 0 && !isAtBottom) return;
+                if (deltaY < 0 && !isAtTop) return;
             }
-        });
+        }
 
-        // Rotate timeline wheel and fill track
-        const wheel = document.getElementById('timeline-wheel');
-        const track = document.getElementById('timeline-track');
-        const fill = document.getElementById('timeline-fill');
-        
-        if (wheel && track && fill) {
-            // Rotate wheel
-            wheel.style.transform = `rotate(${scrolled * 0.5}deg)`;
-            
-            // Calculate fill height based on wheel position inside track
-            const trackRect = track.getBoundingClientRect();
-            const wheelRect = wheel.getBoundingClientRect();
-            
-            let fillHeight = wheelRect.top - trackRect.top + (wheelRect.height / 2);
-            
-            if (fillHeight < 0) fillHeight = 0;
-            if (fillHeight > trackRect.height) fillHeight = trackRect.height;
-            
-            fill.style.height = `${fillHeight}px`;
+        // Swiping gesture threshold
+        if (deltaY > 50) {
+            if (activeIndex < sections.length - 1) {
+              isScrolling.current = true;
+              setDirection(1);
+              setActiveIndex(prev => prev + 1);
+              setTimeout(() => { isScrolling.current = false }, 1000);
+            }
+        } else if (deltaY < -50) {
+            if (activeIndex > 0) {
+              isScrolling.current = true;
+              setDirection(-1);
+              setActiveIndex(prev => prev - 1);
+              setTimeout(() => { isScrolling.current = false }, 1000);
+            }
         }
     };
-    
-    window.addEventListener('scroll', handleScroll);
-    
+    window.addEventListener('touchstart', handleTouchStart);
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+
     return () => {
-      window.removeEventListener('scroll', handleScroll);
-      revealElements.forEach(el => revealOnScroll.unobserve(el));
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
     };
-  }, []);
+  }, [activeIndex]);
+
+  // Activate reveal effects whenever section transitions complete or mount
+  useEffect(() => {
+    const activeSectionId = sections[activeIndex].id;
+    // Brief delay to allow DOM mounting after transition triggers
+    const timer = setTimeout(() => {
+      const activeEl = document.getElementById(activeSectionId);
+      if (activeEl) {
+        const revealEls = activeEl.querySelectorAll('.reveal, .morph-scale, .morph-left, .morph-right');
+        revealEls.forEach(el => {
+          el.classList.add('active');
+        });
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [activeIndex]);
+
+  // Keynote spring variants (Apple stack effect)
+  const slideVariants = {
+    enter: (direction) => ({
+      y: direction > 0 ? '100%' : '-100%',
+      scale: 0.95,
+      opacity: 0,
+      filter: 'blur(12px)'
+    }),
+    center: {
+      zIndex: 1,
+      y: 0,
+      scale: 1,
+      opacity: 1,
+      filter: 'blur(0px)',
+      transition: {
+        y: { type: "spring", stiffness: 320, damping: 32 },
+        opacity: { duration: 0.5 },
+        scale: { duration: 0.6, ease: "easeOut" },
+        filter: { duration: 0.5 }
+      }
+    },
+    exit: (direction) => ({
+      zIndex: 0,
+      y: direction < 0 ? '40%' : '-40%',
+      scale: 0.92,
+      opacity: 0,
+      filter: 'blur(10px)',
+      transition: {
+        y: { type: "spring", stiffness: 320, damping: 32 },
+        opacity: { duration: 0.5 },
+        scale: { duration: 0.6, ease: "easeIn" },
+        filter: { duration: 0.4 }
+      }
+    })
+  };
+
+  const ActiveComponent = sections[activeIndex].Component;
 
   return (
     <>
-      <Navbar activeSection={activeSection} />
-      <main>
-        <Hero />
-        <About />
-        <Experience />
-        <Skills />
-        <Education />
-        <Projects />
-      </main>
-      <Footer />
+      <BackgroundGraphics activeIndex={activeIndex} />
+      <Navbar 
+        activeSection={sections[activeIndex].id} 
+        onNavigate={(id) => {
+          const idx = sections.findIndex(s => s.id === id);
+          if (idx !== -1 && idx !== activeIndex) {
+              setDirection(idx > activeIndex ? 1 : -1);
+              setActiveIndex(idx);
+          }
+        }} 
+      />
+      <div className="slideshow-container">
+          <AnimatePresence initial={false} custom={direction} mode="popLayout">
+            <motion.div
+              key={activeIndex}
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              style={{ position: 'absolute', width: '100%', height: '100%' }}
+            >
+              <ActiveComponent />
+              {activeIndex === sections.length - 1 && <Footer />}
+            </motion.div>
+          </AnimatePresence>
+      </div>
     </>
   );
 }

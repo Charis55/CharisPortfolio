@@ -1,13 +1,18 @@
 import React from 'react';
 
-export const Navbar = ({ activeSection }) => {
+export const Navbar = ({ activeSection, onNavigate }) => {
     const handleNavClick = (e, targetId) => {
         e.preventDefault();
-        const targetElement = document.querySelector(targetId);
-        if (targetElement) {
-            const navHeight = document.querySelector('.navbar').offsetHeight;
-            const targetPosition = targetElement.getBoundingClientRect().top + window.scrollY - navHeight;
-            window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+        const sectionId = targetId.replace('#', '');
+        if (onNavigate) {
+            onNavigate(sectionId);
+        } else {
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                const navHeight = document.querySelector('.navbar').offsetHeight;
+                const targetPosition = targetElement.getBoundingClientRect().top + window.scrollY - navHeight;
+                window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+            }
         }
     };
 
@@ -15,7 +20,7 @@ export const Navbar = ({ activeSection }) => {
         <nav className="navbar glass">
             <div className="nav-content">
                 <a href="#hero" className="logo" onClick={(e) => handleNavClick(e, '#hero')}>
-                    <img src="/logo.png" alt="CharisCorp Logo" className="nav-logo" />
+                    Charis
                 </a>
                 <ul className="nav-links">
                     <li><a href="#about" className={activeSection === 'about' ? 'active-link' : ''} onClick={(e) => handleNavClick(e, '#about')}>About</a></li>
@@ -49,25 +54,25 @@ export const Hero = () => {
 export const About = () => {
     return (
         <section id="about" className="section dark-section">
-            <div className="container reveal">
-                <h2 className="section-title">Professional Summary</h2>
-                <p className="summary-text">
+            <div className="container">
+                <h2 className="section-title morph-scale">Professional Summary</h2>
+                <p className="summary-text reveal">
                     A dedicated student with some experience in HTML development and management, database management with SQL, and MySQL administration and maintenance. Proficient in using Software Development IDEs for efficient coding practices. Demonstrates strong critical thinking and problem analysis skills, coupled with the ability to collaborate effectively within groups. Adaptable and committed to student engagement, aiming to leverage technical skills in a dynamic work environment.
                 </p>
                 <div className="contact-grid">
-                    <a href="mailto:obunezicharis@gmail.com" className="contact-card">
+                    <a href="mailto:obunezicharis@gmail.com" className="contact-card reveal fade-delay-1">
                         <span className="label">Email</span>
                         <span className="value">obunezicharis@gmail.com</span>
                     </a>
-                    <a href="tel:+2348102901056" className="contact-card">
+                    <a href="tel:+2348102901056" className="contact-card reveal fade-delay-2">
                         <span className="label">Phone</span>
                         <span className="value">+234 810 290 1056</span>
                     </a>
-                    <a href="http://linkedin.com/in/charis-obunezi-6726392a7/" target="_blank" rel="noreferrer" className="contact-card">
+                    <a href="http://linkedin.com/in/charis-obunezi-6726392a7/" target="_blank" rel="noreferrer" className="contact-card reveal fade-delay-3">
                         <span className="label">LinkedIn</span>
                         <span className="value">View Profile</span>
                     </a>
-                    <a href="https://github.com/Charis55" target="_blank" rel="noreferrer" className="contact-card">
+                    <a href="https://github.com/Charis55" target="_blank" rel="noreferrer" className="contact-card reveal fade-delay-4">
                         <span className="label">GitHub</span>
                         <span className="value">@Charis55</span>
                     </a>
@@ -78,10 +83,39 @@ export const About = () => {
 };
 
 export const Experience = () => {
+    React.useEffect(() => {
+        const handleInternalScroll = () => {
+            const wheel = document.getElementById('timeline-wheel');
+            const track = document.getElementById('timeline-track');
+            const fill = document.getElementById('timeline-fill');
+            const expSection = document.getElementById('experience');
+            
+            if (wheel && track && fill && expSection) {
+                const scrolled = expSection.scrollTop;
+                wheel.style.transform = `rotate(${scrolled * 0.5}deg)`;
+                
+                const trackRect = track.getBoundingClientRect();
+                const wheelRect = wheel.getBoundingClientRect();
+                
+                let fillHeight = wheelRect.top - trackRect.top + (wheelRect.height / 2);
+                if (fillHeight < 0) fillHeight = 0;
+                if (fillHeight > trackRect.height) fillHeight = trackRect.height;
+                fill.style.height = `${fillHeight}px`;
+            }
+        };
+
+        const expSection = document.getElementById('experience');
+        if (expSection) {
+            expSection.addEventListener('scroll', handleInternalScroll);
+            handleInternalScroll();
+            return () => expSection.removeEventListener('scroll', handleInternalScroll);
+        }
+    }, []);
+
     return (
         <section id="experience" className="section">
             <div className="container">
-                <h2 className="section-title reveal">Work History</h2>
+                <h2 className="section-title morph-scale">Work History</h2>
                 <div className="timeline">
                     <div className="timeline-fill" id="timeline-fill"></div>
                     <div className="timeline-track" id="timeline-track">
@@ -109,7 +143,7 @@ export const Skills = () => {
     return (
         <section id="skills" className="section dark-section">
             <div className="container">
-                <h2 className="section-title reveal">Technical Arsenal</h2>
+                <h2 className="section-title morph-scale">Technical Arsenal</h2>
                 <div className="skills-grid">
                     <div className="skill-card glass-card reveal fade-delay-1">
                         <h4>Languages & Tech</h4>
@@ -136,8 +170,8 @@ export const Skills = () => {
 export const Education = () => {
     return (
         <section id="education" className="section">
-            <div className="container reveal">
-                <h2 className="section-title">Education & Profile</h2>
+            <div className="container">
+                <h2 className="section-title morph-scale">Education & Profile</h2>
 
                 <div className="edu-grid">
                     <div className="edu-history" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -169,11 +203,11 @@ export const Education = () => {
                     </div>
 
                     <div className="side-info">
-                        <div className="info-card glass-card reveal fade-delay-2">
+                        <div className="info-card glass-card morph-right fade-delay-2">
                             <h4>Languages</h4>
                             <p>English - Advanced (C1)</p>
                         </div>
-                        <div className="info-card glass-card reveal fade-delay-3">
+                        <div className="info-card glass-card morph-right fade-delay-3">
                             <h4>Hobbies & Interests</h4>
                             <ul className="hobby-list">
                                 <li>Gaming</li>
@@ -193,7 +227,7 @@ export const Projects = () => {
     return (
         <section id="projects" className="section dark-section">
             <div className="container">
-                <h2 className="section-title reveal">Featured Works</h2>
+                <h2 className="section-title morph-scale">Featured Works</h2>
                 <div className="projects-grid">
                     <a href="https://cash-pilot-new.vercel.app/" target="_blank" rel="noreferrer" className="project-card glass-card reveal fade-delay-1">
                         <h3>CashPilot</h3>
