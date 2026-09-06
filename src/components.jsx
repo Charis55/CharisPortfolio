@@ -1,14 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-export const Navbar = ({ activeSection }) => {
+export const Navbar = ({ activeSection, onNavigate }) => {
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
     const handleNavClick = (e, targetId) => {
         e.preventDefault();
-        const targetElement = document.querySelector(targetId);
-        if (targetElement) {
-            const navHeight = document.querySelector('.navbar').offsetHeight;
-            const targetPosition = targetElement.getBoundingClientRect().top + window.scrollY - navHeight;
-            window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+        const id = targetId.replace('#', '');
+        if (onNavigate) {
+            onNavigate(id);
         }
+        setIsMobileMenuOpen(false);
     };
 
     return (
@@ -17,7 +18,14 @@ export const Navbar = ({ activeSection }) => {
                 <a href="#hero" className="logo" onClick={(e) => handleNavClick(e, '#hero')}>
                     <img src="/logo.png" alt="CharisCorp Logo" className="nav-logo" />
                 </a>
-                <ul className="nav-links">
+                
+                <div className={`mobile-menu-icon ${isMobileMenuOpen ? 'open' : ''}`} onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+
+                <ul className={`nav-links ${isMobileMenuOpen ? 'nav-active' : ''}`}>
                     <li><a href="#about" className={activeSection === 'about' ? 'active-link' : ''} onClick={(e) => handleNavClick(e, '#about')}>About</a></li>
                     <li><a href="#experience" className={activeSection === 'experience' ? 'active-link' : ''} onClick={(e) => handleNavClick(e, '#experience')}>Experience</a></li>
                     <li><a href="#skills" className={activeSection === 'skills' ? 'active-link' : ''} onClick={(e) => handleNavClick(e, '#skills')}>Skills</a></li>
